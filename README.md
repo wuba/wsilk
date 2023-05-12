@@ -67,9 +67,6 @@ wsilk is a framework that assists developers to generate code through meta info 
 ```
 ***scope 设置为provided，这样这个jar包只在编译阶段有效，这样避免jar包对你项目的污染***
 
-## 提示
-***假如maven中提示找不到tool.jar，你可以从jdk8中找到tool.jar，并拷贝到提示寻找的目录***
-
 ## 简单使用
 
  1. 创建一个maven 项目
