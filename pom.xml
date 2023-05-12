@@ -66,7 +66,6 @@
 		<module>wsilk-codegen-java</module>
 		<module>wsilk-core</module>
 		<module>wsilk-producer</module>
-		<module>wsilk-codegen-xml</module>
 		<module>wsilk-common</module>
 	</modules>
 
