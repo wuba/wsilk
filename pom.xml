@@ -64,7 +64,6 @@
 		<module>wsilk-codegen</module>
 		<module>wsilk-maven-plugin</module>
 		<module>wsilk-codegen-java</module>
-		<module>wsilk-codegen-kotlin</module>
 		<module>wsilk-core</module>
 		<module>wsilk-producer</module>
 		<module>wsilk-codegen-xml</module>
