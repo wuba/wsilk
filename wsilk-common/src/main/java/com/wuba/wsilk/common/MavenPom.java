@@ -89,11 +89,13 @@ public class MavenPom {
 		ObjectInputStream ois = null;
 		try {
 			File pomFile = pomFile(file);
-			fis = new FileInputStream(pomFile);
-			ois = new ObjectInputStream(fis);
-			List<Dependency> dependencys = (List<Dependency>) ois.readObject();
-			pomFile.delete();
-			return dependencys;
+			if (pomFile.exists()) {
+				fis = new FileInputStream(pomFile);
+				ois = new ObjectInputStream(fis);
+				List<Dependency> dependencys = (List<Dependency>) ois.readObject();
+				pomFile.delete();
+				return dependencys;
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

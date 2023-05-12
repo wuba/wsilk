@@ -46,7 +46,6 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.inject.internal.util.Sets;
 
 import org.codehaus.plexus.compiler.javac.JavacCompiler;
 import org.codehaus.plexus.compiler.javac.JavaxToolsCompiler;
@@ -375,7 +374,7 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 
 	private String getAllGroupId() {
 		Plugin plugin = project.getPlugin("com.wuba:wsilk-maven-plugin");
-		Set<String> groupIds = Sets.newHashSet();
+		Set<String> groupIds = new HashSet<String>();
 		List<Dependency> dependencies = plugin.getDependencies();
 		if (dependencies != null) {
 			dependencies.forEach(e -> {
