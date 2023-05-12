@@ -33,12 +33,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.wuba</groupId>
-			<artifactId>wsilk-codegen-kotlin</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 		</dependency>
