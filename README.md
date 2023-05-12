@@ -119,4 +119,4 @@ public class User {
    我们将介绍一些代码生成器的原理,并指导怎么编写自己的代码生成器及怎么生成一些复杂的业务，[点击学习][1]
 
 
-  [1]: https://igit.58corp.com/opensource/wsilk/-/wikis/home
+  [1]: https://github.com/wuba/wsilk/wiki
