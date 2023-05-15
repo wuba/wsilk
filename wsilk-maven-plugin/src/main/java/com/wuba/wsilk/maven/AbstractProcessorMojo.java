@@ -34,8 +34,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -44,7 +42,6 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import org.codehaus.plexus.compiler.javac.JavacCompiler;
@@ -159,8 +156,6 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 
 	private final String loggerFileName = "wsilk.log";
 
-	private final String split = ",";
-
 	public File getOutputDirectory() {
 		return new File(project.getBasedir(), this.outputDirectory);
 	}
@@ -241,7 +236,6 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 		}
 		custom.put("-AprojectPath=" + project.getBasedir().getAbsolutePath(), null);
 		custom.put("-Aoverride=" + override, null);
-		custom.put("-AgroupId=" + getAllGroupId(), null);
 		if (getOutputDirectory() != null) {
 			custom.put("-As=" + getOutputDirectory().getPath(), null);
 		}
@@ -370,19 +364,6 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 			error("execute error", e1);
 			throw new MojoExecutionException(e1.getMessage());
 		}
-	}
-
-	private String getAllGroupId() {
-		Plugin plugin = project.getPlugin("com.wuba:wsilk-maven-plugin");
-		Set<String> groupIds = new HashSet<String>();
-		List<Dependency> dependencies = plugin.getDependencies();
-		if (dependencies != null) {
-			dependencies.forEach(e -> {
-				groupIds.add(e.getGroupId());
-			});
-		}
-		String spk = Joiner.on(split).join(groupIds);
-		return StringUtils.isNoneEmpty(scanPackage) ? scanPackage + split + spk : spk;
 	}
 
 	public void updatePom() {

@@ -21,11 +21,16 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.jar.JarFile;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -42,6 +47,7 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.wuba.wsilk.core.tf.DefaultEntityTypeFactory;
 import com.wuba.wsilk.common.ClassUtils;
@@ -119,13 +125,12 @@ public class WsilkConfiguration {
 			projectPath = projectFile;
 			codeFormat = BooleanUtils.toBoolean(optionsMapper.getOption("codeFormat"));
 			String typeFactoryClass = optionsMapper.getOption("typeFactory");
-
-			String groupId = optionsMapper.getOption("groupId");
-
-			List<String> packageList = Splitter.on(",").splitToList(groupId);
-
-			this.scanPackage = packageList.toArray(new String[packageList.size()]);
-
+			try {
+				this.scanPackage = scanPackage(getClassLoader());
+			} catch (IOException e) {
+				this.scanPackage = new String[] { "com" };
+				e.printStackTrace();
+			}
 			if (typeFactoryClass != null) {
 				Class<?> cls = ClassUtils.loaderClass(typeFactoryClass);
 				if (cls != null) {
@@ -139,6 +144,22 @@ public class WsilkConfiguration {
 		} else {
 			canStart = false;
 		}
+	}
+
+	private String[] scanPackage(ClassLoader classLoader) throws IOException {
+		Enumeration<URL> resources = classLoader.getResources("META-INF/wsilk");
+		Set<String> pks = Sets.newHashSet();
+		while (resources.hasMoreElements()) {
+			URL url = resources.nextElement();
+			URLConnection urlConnection = url.openConnection();
+			if (urlConnection instanceof JarURLConnection) {
+				JarURLConnection jarURL = (JarURLConnection) urlConnection;
+				List<String> values = IOUtils.readLines(jarURL.getInputStream(), getCharset());
+				pks.addAll(values);
+			} else {
+			}
+		}
+		return pks.toArray(new String[pks.size()]);
 	}
 
 	/**
