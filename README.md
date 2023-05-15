@@ -21,7 +21,7 @@ wsilk is a framework that assists developers to generate code through meta info 
  在maven pom的 plugins中新增wsilk-maven-plugin
 ```
 <plugin>
- <groupId>com.wuba</groupId>
+ <groupId>io.github.wuba</groupId>
  <artifactId>wsilk-maven-plugin</artifactId>
  <version>1.0.0</version>
  <executions>
@@ -41,12 +41,12 @@ wsilk is a framework that assists developers to generate code through meta info 
  </configuration>
  <dependencies>
   <dependency>
-   <groupId>com.wuba</groupId>
+   <groupId>io.github.wuba</groupId>
    <artifactId>wsilk-core</artifactId>
    <version>1.0.0</version>
   </dependency>
   <dependency>
-   <groupId>com.wuba</groupId>
+   <groupId>io.github.wuba</groupId>
    <artifactId>wsilk-producer</artifactId>
    <version>1.0.0</version>
   </dependency>
@@ -58,7 +58,7 @@ wsilk is a framework that assists developers to generate code through meta info 
 在maven项目中的 dependencys 中添加依赖
 ```
 <dependency>
- <groupId>com.wuba</groupId>
+ <groupId>io.github.wuba</groupId>
  <artifactId>wsilk-producer</artifactId>
  <version>1.0.0</version>
  <scope>provided</scope>
