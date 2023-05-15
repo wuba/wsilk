@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.wuba</groupId>
+		<groupId>io.github.wuba</groupId>
 		<artifactId>wsilk</artifactId>
 		<version>1.0.0</version>
 	</parent>
@@ -15,19 +15,19 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>com.wuba</groupId>
+			<groupId>io.github.wuba</groupId>
 			<artifactId>wsilk-codegen</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.wuba</groupId>
+			<groupId>io.github.wuba</groupId>
 			<artifactId>wsilk-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.wuba</groupId>
+			<groupId>io.github.wuba</groupId>
 			<artifactId>wsilk-codegen-java</artifactId>
 			<version>${project.version}</version>
 		</dependency>
