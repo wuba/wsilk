@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.jar.JarFile;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -46,8 +45,6 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ConfigurationBuilder;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.wuba.wsilk.core.tf.DefaultEntityTypeFactory;
 import com.wuba.wsilk.common.ClassUtils;
@@ -93,7 +90,7 @@ public class WsilkConfiguration {
 	private OptionsMapper optionsMapper;
 
 	@Getter
-	private Charset charset;
+	private Charset charset = Charset.forName("UTF-8");
 
 	private boolean codeFormat = false;
 
@@ -111,12 +108,16 @@ public class WsilkConfiguration {
 
 	public WsilkConfiguration(ProcessingEnvironment processingEnv, RoundEnvironment roundEnv) {
 		this.processingEnv = new WsilkProcessingEnvironment(processingEnv);
-		charset = Charset.forName("UTF-8");
+//		charset = Charset.forName("UTF-8");
 		this.roundEnv = roundEnv;
 		optionsMapper = new OptionsMapper(this);
 		/** 设置关注注解 */
 		for (Entry<String, String> entry : this.processingEnv.getOptions().entrySet()) {
 			optionsMapper.regOption(entry.getKey(), entry.getValue());
+		}
+		String charset = optionsMapper.getOption("charset", "UTF-8");
+		if (StringUtils.isNoneEmpty(charset)) {
+			this.charset = Charset.forName(charset);
 		}
 		File projectFile = optionsMapper.getProjectPath();
 
@@ -128,7 +129,7 @@ public class WsilkConfiguration {
 			try {
 				this.scanPackage = scanPackage(getClassLoader());
 			} catch (IOException e) {
-				this.scanPackage = new String[] { "com" };
+				this.scanPackage = new String[] { "com.wuba" };
 				e.printStackTrace();
 			}
 			if (typeFactoryClass != null) {

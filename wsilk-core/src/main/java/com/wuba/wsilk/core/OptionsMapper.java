@@ -92,4 +92,9 @@ public class OptionsMapper extends AbstractConfigAble {
 		return path;
 	}
 
+	public String getOption(String type, String def) {
+		String option = getOption(type);
+		return option == null ? def : option;
+	}
+
 }
