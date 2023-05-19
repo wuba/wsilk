@@ -18,6 +18,9 @@
 		<project.build.jdk>${java.version}</project.build.jdk>
 	</properties>
 
+	<name>wsilk</name>
+	<description>wsilk is a framework that assists developers to generate code</description>
+	<url>https://github.com/wuba/wsilk</url>
 
 	<dependencies>
 		<dependency>
