@@ -43,6 +43,7 @@ import org.codehaus.plexus.util.Scanner;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import com.google.common.collect.Lists;
+import com.wuba.wsilk.common.ThrowsUtils;
 
 import org.codehaus.plexus.compiler.javac.JavacCompiler;
 import org.codehaus.plexus.compiler.javac.JavaxToolsCompiler;
@@ -147,11 +148,6 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 	 */
 	protected boolean showWarnings = false;
 
-	/**
-	 * 错误日志
-	 */
-	protected boolean logOnlyOnError = false;
-
 	private File loggerFile;
 
 	private final String loggerFileName = "wsilk.log";
@@ -180,7 +176,9 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 			for (Artifact a : this.pluginArtifacts) {
 				if (a.getFile() != null) {
 					// 添加jar
-					pathElements.add(a.getFile().getAbsolutePath());
+					if (a.getFile() != null) {
+						pathElements.add(a.getFile().getAbsolutePath());
+					}
 				}
 			}
 		}
@@ -191,7 +189,6 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 	 * javac编译的选项
 	 */
 	private CompilerConfiguration buildCompilerConfiguration(Set<File> files) throws IOException {
-
 		CompilerConfiguration configuration = new CompilerConfiguration();
 		// 输出路径
 		configuration.setAnnotationProcessors(new String[] { processor });
@@ -226,19 +223,32 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 		}
 		configuration.setSourceVersion(source);
 		configuration.setTargetVersion(target);
+		configuration.setCompilerVersion(version);
+		info("source:" + source);
+		info("target:" + target);
+		info("version:" + version);
+
 		// 源码
 		configuration.setSourceFiles(files);
 		Map<String, String> custom = new HashMap<>();
 		if (this.options != null) {
 			for (Map.Entry<String, String> entry : this.options.entrySet()) {
 				custom.put("-A" + entry.getKey() + "=" + entry.getValue(), null);
+				info(entry.getKey() + ":" + entry.getValue());
 			}
 		}
-		custom.put("-AprojectPath=" + project.getBasedir().getAbsolutePath(), null);
+		String projectPath = project.getBasedir().getAbsolutePath();
+		info("projectPath:" + projectPath);
+		custom.put("-AprojectPath=" + projectPath, null);
 		custom.put("-Aoverride=" + override, null);
+		if (logger && loggerFile != null) {
+			custom.put("-AloggerFile=" + loggerFile.getAbsolutePath(), null);
+		}
 		if (getOutputDirectory() != null) {
 			custom.put("-As=" + getOutputDirectory().getPath(), null);
+			info("s:" + getOutputDirectory().getPath());
 		}
+
 		configuration.setCustomCompilerArgumentsAsMap(custom);
 		if (this.compilerOptions != null) {
 			custom.putAll(this.compilerOptions);
@@ -250,7 +260,6 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 				opts.add(value);
 			}
 		}
-
 		return configuration;
 	}
 
@@ -342,28 +351,29 @@ public abstract class AbstractProcessorMojo extends AbstractMojo {
 				return;
 			}
 			CompilerConfiguration configuration = buildCompilerConfiguration(files);
-			CompilerResult result = compiler.performCompile(configuration);
+			configuration.setWarnings("none");
+			info("warnings none");
 			info("compiler source");
-			if (result.isSuccess()) {
-				if (this.logOnlyOnError) {
-					info(String.valueOf(result.getCompilerMessages()));
+			try {
+				CompilerResult result = compiler.performCompile(configuration);
+				info(String.valueOf(result.getCompilerMessages()));
+				if (getOutputDirectory() != null) {
+					// 更新pom.xml
+					updatePom();
+					// 更新项目
+					if (project.getParentFile() != null) {
+						this.buildContext.refresh(project.getParentFile());
+					}
 				}
-			} else {
-				if (this.logOnlyOnError) {
-					info(String.valueOf(result.getCompilerMessages()));
-				}
+			} catch (Exception e) {
+				debug(ThrowsUtils.string(e));
 			}
-			if (getOutputDirectory() != null) {
-				// 更新pom.xml
-				updatePom();
-				// 更新项目
-				this.buildContext.refresh(project.getParentFile());
-			}
-			debug("generatate over");
+			debug("compiler over");
 		} catch (Exception e1) {
 			error("execute error", e1);
 			throw new MojoExecutionException(e1.getMessage());
 		}
+		debug("end job");
 	}
 
 	public void updatePom() {

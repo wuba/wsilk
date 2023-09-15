@@ -18,6 +18,7 @@ package com.wuba.wsilk.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -25,6 +26,7 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map.Entry;
@@ -48,6 +50,7 @@ import org.reflections.util.ConfigurationBuilder;
 import com.google.common.collect.Sets;
 import com.wuba.wsilk.core.tf.DefaultEntityTypeFactory;
 import com.wuba.wsilk.common.ClassUtils;
+import com.wuba.wsilk.common.ThrowsUtils;
 import com.wuba.wsilk.core.adapter.WsilkProcessingEnvironment;
 import com.wuba.wsilk.core.tf.AbstractEntityTypeFactory;
 import com.wuba.wsilk.core.utils.AstReflectUtils;
@@ -96,6 +99,8 @@ public class WsilkConfiguration {
 
 	private boolean canStart = true;
 
+	private File loggerFile;
+
 	@Getter
 	private AbstractEntityTypeFactory<? extends SourceEntityMeta> entityTypeFactory;
 
@@ -125,18 +130,22 @@ public class WsilkConfiguration {
 			/** 获得项目路径 */
 			projectPath = projectFile;
 			codeFormat = BooleanUtils.toBoolean(optionsMapper.getOption("codeFormat"));
-			String typeFactoryClass = optionsMapper.getOption("typeFactory");
 			try {
 				this.scanPackage = scanPackage(getClassLoader());
 			} catch (IOException e) {
 				this.scanPackage = new String[] { "com.wuba" };
 				e.printStackTrace();
 			}
+			String typeFactoryClass = optionsMapper.getOption("typeFactory");
 			if (typeFactoryClass != null) {
 				Class<?> cls = ClassUtils.loaderClass(typeFactoryClass);
 				if (cls != null) {
 					entityTypeFactory = getInstanceUtils().createInstance(cls, this);
 				}
+			}
+			String loggerFilePath = optionsMapper.getOption("loggerFile");
+			if (loggerFilePath != null) {
+				loggerFile = new File(loggerFilePath);
 			}
 			if (entityTypeFactory == null) {
 				this.entityTypeFactory = new DefaultEntityTypeFactory(this);
@@ -193,6 +202,11 @@ public class WsilkConfiguration {
 	 */
 	public void error(String message) {
 		processingEnv.getMessager().printMessage(Kind.ERROR, message);
+		log(message);
+	}
+
+	public void error(Exception e) {
+		log(ThrowsUtils.string(e));
 	}
 
 	/**
@@ -202,6 +216,7 @@ public class WsilkConfiguration {
 	 */
 	public void other(String message) {
 		processingEnv.getMessager().printMessage(Kind.OTHER, message);
+		log(message);
 	}
 
 	/**
@@ -211,6 +226,7 @@ public class WsilkConfiguration {
 	 */
 	public void info(String message) {
 		processingEnv.getMessager().printMessage(Kind.NOTE, message);
+		log(message);
 	}
 
 	/**
@@ -220,6 +236,15 @@ public class WsilkConfiguration {
 	 */
 	public void warning(String message) {
 		processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, message);
+		log(message);
+	}
+
+	private void log(String... message) {
+		try {
+			FileUtils.writeLines(loggerFile, getCharset().name(), Arrays.asList(message), true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -385,4 +410,5 @@ public class WsilkConfiguration {
 		}
 		return namespace;
 	}
+
 }

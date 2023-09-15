@@ -48,9 +48,14 @@ public abstract class AbstractAnnotationProcessor extends AbstractProcessor {
 
 		if (conf.canStart()) {
 			conf.info("start processor");
-			// 操作类
-			ProcessDispatch processDispatch = new ProcessDispatch(conf);
-			processDispatch.process();
+			try {
+				// 操作类
+				ProcessDispatch processDispatch = new ProcessDispatch(conf);
+				processDispatch.process();
+			} catch (Exception e) {
+				conf.error(e);
+			}
+			conf.info("processor end");
 		}
 		return true;
 	}
